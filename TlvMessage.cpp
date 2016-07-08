@@ -18,24 +18,57 @@ TlvMessage::~TlvMessage()
     this->value = NULL;
 }
 
-bool TlvMessage::check(QDataStream &stream, quint8 expected)
+void TlvMessage::unmarshall(QDataStream &stream) const
+{
+    stream << SOH;
+    stream << 4;
+    stream << STX;
+    address.unmarshall(stream);
+    if (hasValue()) value->unmarshall(stream);
+    stream << ETX;
+    stream << EOT;
+}
+
+void TlvMessage::checkSize(QDataStream &stream, qint64 min)
+{
+    qint64 size = stream.device()->bytesAvailable();
+    if (size < min) throw QString("Invalid message size [%1] but expected [%2]")
+            .arg(size).arg(min);
+}
+
+void TlvMessage::check(QDataStream &stream, quint8 expected)
 {
     quint8 c;
     stream >> c;
-    if (c == expected) return true;
-    return false;
+    if (c != expected) throw QString("Invalid message format, char [%1] but expected [%2]!")
+            .arg(QString::number(c, 16))
+            .arg(QString::number(expected, 16));
 }
 
-TlvMessage TlvMessage::marshall(QDataStream &stream)
+bool TlvMessage::containsMessage(QByteArray &buffer)
 {
-    // chack header
-    if (!check(stream, SOH)) throw "Invalid message format!";
+    QDataStream stream(buffer);
+    if (buffer.size() < ENCAP_SIZE) return false;
+    check(stream, SOH);
+
+    int size;
+    stream >> size;
+
+    return buffer.size() >= size;
+}
+
+TlvMessage TlvMessage::marshall(QDataStream &stream) {
+
+    checkSize(stream, ENCAP_SIZE);
+
+    // check header
+    check(stream, SOH);
 
     // extract size
     uint size;
     stream >> size;
 
-    if (!check(stream, STX)) throw "Invalid message format!";
+    check(stream, STX);
 
     // extract address
     TlvTuple address = TlvTuple::marshall(stream);
@@ -49,11 +82,12 @@ TlvMessage TlvMessage::marshall(QDataStream &stream)
     } else throw "Invalid message tuple type!";
 
     // check footer
-    if (!check(stream, ETX)) throw "Invalid message format!";
-    if (!check(stream, EOT)) throw "Invalid message format!";
+    check(stream, ETX);
+    check(stream, EOT);
 
     return message;
 }
+
 
 void TlvMessage::setValue(const TlvTuple *value)
 {

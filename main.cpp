@@ -74,6 +74,7 @@ int main(int argc, char *argv[])
 
         qDebug() << buffer.toHex();
         qDebug() << message;
+        qDebug() << "Contains message" << TlvMessage::containsMessage(buffer);
 
     }
 

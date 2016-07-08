@@ -10,7 +10,7 @@
 class TlvMessage
 {
 public:
-    static const uint ENCAP_SIZE = 5;
+    static const int ENCAP_SIZE = 5 + sizeof(int);
 
     static const quint8 SOH = 0x01;
     static const quint8 STX = 0x02;
@@ -18,27 +18,20 @@ public:
     static const quint8 EOT = 0x04;
 
     // constructor
-    TlvMessage(TlvTuple address);
-    TlvMessage(const TlvMessage& other);
+    TlvMessage(TlvTuple);
+    TlvMessage(const TlvMessage&);
     virtual ~TlvMessage();
 
     // method
-    void unmarshall(QDataStream& stream) const
-    {
-        stream << SOH;
-        stream << 4;
-        stream << STX;
-        address.unmarshall(stream);
-        if (hasValue()) value->unmarshall(stream);
-        stream << ETX;
-        stream << EOT;
-    }
+    void unmarshall(QDataStream&) const;
 
-    static bool check(QDataStream& stream, quint8 expected);
+    static void checkSize(QDataStream& stream, qint64 min);
+    static void check(QDataStream& stream, quint8 expected);
+    static bool containsMessage(QByteArray& buffer);
     static TlvMessage marshall(QDataStream& stream);
 
     // property
-    void setValue(const TlvTuple* value);
+    void setValue(const TlvTuple*);
     bool hasValue() const;
 
     // operator

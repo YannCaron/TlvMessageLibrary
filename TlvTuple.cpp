@@ -39,7 +39,7 @@ int TlvTuple::getInt() const
 void TlvTuple::unmarshall(QDataStream& stream) const
 {
     stream << this->type;
-	//stream << sizeof(value);
+    //stream << value.size();
     stream << this->value;
 }
 
