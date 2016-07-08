@@ -16,7 +16,9 @@ TEMPLATE = app
 
 
 SOURCES += main.cpp \
-    TlvTuple.cpp
+    TlvTuple.cpp \
+    TlvMessage.cpp
 
 HEADERS += \
-    TlvTuple.h
+    TlvTuple.h \
+    TlvMessage.h

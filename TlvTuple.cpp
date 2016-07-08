@@ -4,17 +4,39 @@ TlvTuple::TlvTuple(const quint8 type, const QByteArray& value) : type(type), val
 {
 }
 
+TlvTuple::TlvTuple(const TlvTuple &other) : type(other.type), value(other.value) {
+}
+
 TlvTuple::~TlvTuple(void)
 {
 }
 
 char TlvTuple::getType() const { return this->type; }
 
-const char* TlvTuple::getValue() const { return this->value; }
+const char* TlvTuple::data() const { return this->value; }
 
-int TlvTuple::size() { return HEADER_SIZE + value.size(); }
+int TlvTuple::size() const { return HEADER_SIZE + value.size(); }
 
-void TlvTuple::unmarshall(QDataStream& stream)
+QString TlvTuple::toString() const
+{
+    return QString(this->value);
+}
+
+bool TlvTuple::getBool() const
+{
+    bool b;
+    QDataStream(value) >> b;
+    return b;
+}
+
+int TlvTuple::getInt() const
+{
+    int i;
+    QDataStream(value) >> i;
+    return i;
+}
+
+void TlvTuple::unmarshall(QDataStream& stream) const
 {
     stream << this->type;
 	//stream << sizeof(value);
@@ -32,15 +54,10 @@ TlvTuple TlvTuple::marshall(QDataStream& stream) {
 
     // extract data
     QByteArray buffer;
-    if (type == TYPE_STRING) {
-        char *temp = new char[size];
-        stream.readRawData(temp, size);
-        buffer.append(temp, size);
-        delete [] temp;
-    } else {
-        // TODO manage exception
-        qDebug() << "Unknown type: " << type;
-    }
+    char *temp = new char[size];
+    stream.readRawData(temp, size);
+    buffer.append(temp, size);
+    delete [] temp;
 
-    return TlvTuple(type, buffer.data());
+    return TlvTuple(type, buffer);
 }
