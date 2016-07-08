@@ -1,7 +1,5 @@
 #include "TlvMessage.h"
 
-//TlvMessage::TlvMessage() {}
-
 TlvMessage::TlvMessage(TlvTuple address) : address(address), value(NULL)
 {
 
@@ -29,27 +27,11 @@ void TlvMessage::unmarshall(QDataStream &stream) const
     stream << EOT;
 }
 
-void TlvMessage::checkSize(QDataStream &stream, qint64 min)
-{
-    qint64 size = stream.device()->bytesAvailable();
-    if (size < min) throw QString("Invalid message size [%1] but expected [%2]")
-            .arg(size).arg(min);
-}
-
-void TlvMessage::check(QDataStream &stream, quint8 expected)
-{
-    quint8 c;
-    stream >> c;
-    if (c != expected) throw QString("Invalid message format, char [%1] but expected [%2]!")
-            .arg(QString::number(c, 16))
-            .arg(QString::number(expected, 16));
-}
-
 bool TlvMessage::containsMessage(QByteArray &buffer)
 {
     QDataStream stream(buffer);
     if (buffer.size() < ENCAP_SIZE) return false;
-    check(stream, SOH);
+    TlvTuple::check(stream, SOH);
 
     int size;
     stream >> size;
@@ -59,16 +41,16 @@ bool TlvMessage::containsMessage(QByteArray &buffer)
 
 TlvMessage TlvMessage::marshall(QDataStream &stream) {
 
-    checkSize(stream, ENCAP_SIZE);
+    TlvTuple::checkSize(stream, ENCAP_SIZE);
 
     // check header
-    check(stream, SOH);
+    TlvTuple::check(stream, SOH);
 
     // extract size
     uint size;
     stream >> size;
 
-    check(stream, STX);
+    TlvTuple::check(stream, STX);
 
     // extract address
     TlvTuple address = TlvTuple::marshall(stream);
@@ -82,8 +64,8 @@ TlvMessage TlvMessage::marshall(QDataStream &stream) {
     } else throw "Invalid message tuple type!";
 
     // check footer
-    check(stream, ETX);
-    check(stream, EOT);
+    TlvTuple::check(stream, ETX);
+    TlvTuple::check(stream, EOT);
 
     return message;
 }

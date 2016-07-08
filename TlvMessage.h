@@ -10,7 +10,7 @@
 class TlvMessage
 {
 public:
-    static const int ENCAP_SIZE = 5 + sizeof(int);
+    static const int ENCAP_SIZE = 4 + sizeof(int);
 
     static const quint8 SOH = 0x01;
     static const quint8 STX = 0x02;
@@ -25,8 +25,6 @@ public:
     // method
     void unmarshall(QDataStream&) const;
 
-    static void checkSize(QDataStream& stream, qint64 min);
-    static void check(QDataStream& stream, quint8 expected);
     static bool containsMessage(QByteArray& buffer);
     static TlvMessage marshall(QDataStream& stream);
 

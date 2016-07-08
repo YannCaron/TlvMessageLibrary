@@ -33,6 +33,9 @@ public:
 
 
     // method
+    static void checkSize(QDataStream& stream, qint64 min);
+    static void check(QDataStream& stream, quint8 expected);
+
     void unmarshall(QDataStream&) const;
     static TlvTuple marshall(QDataStream&);
 

@@ -36,6 +36,22 @@ int TlvTuple::getInt() const
     return i;
 }
 
+void TlvTuple::checkSize(QDataStream &stream, qint64 min)
+{
+    qint64 size = stream.device()->bytesAvailable();
+    if (size < min) throw QString("Invalid message size [%1] but expected [%2]")
+            .arg(size).arg(min);
+}
+
+void TlvTuple::check(QDataStream &stream, quint8 expected)
+{
+    quint8 c;
+    stream >> c;
+    if (c != expected) throw QString("Invalid message format, char [%1] but expected [%2]!")
+            .arg(QString::number(c, 16))
+            .arg(QString::number(expected, 16));
+}
+
 void TlvTuple::unmarshall(QDataStream& stream) const
 {
     stream << this->type;
@@ -44,6 +60,9 @@ void TlvTuple::unmarshall(QDataStream& stream) const
 }
 
 TlvTuple TlvTuple::marshall(QDataStream& stream) {
+
+    checkSize(stream, HEADER_SIZE);
+
     // extract type
     quint8 type;
     stream >> type;
@@ -51,6 +70,8 @@ TlvTuple TlvTuple::marshall(QDataStream& stream) {
     // extract length
     uint size;
     stream >> size;
+
+    checkSize(stream, size);
 
     // extract data
     QByteArray buffer;
