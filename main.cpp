@@ -10,11 +10,10 @@ int main(int argc, char *argv[])
 
     {
         qDebug() << "Test unmarshall -----------------------------------------------------------";
-        TlvTuple tuple = TlvTuple((qint8)0x14, QString("Hi by my tlv friend !").toLatin1().data());
+        TlvTuple tuple = TlvTuple(TlvTuple::TYPE_STRING, QString("Hi by my tlv friend !").toLatin1().data());
 
         QByteArray buffer;
         QDataStream stream(&buffer, QIODevice::WriteOnly);
-        stream.setByteOrder(QDataStream::ByteOrder(QSysInfo::ByteOrder));
 
         tuple.unmarshall(stream);
 
@@ -72,6 +71,24 @@ int main(int argc, char *argv[])
         QDataStream stream(&buffer, QIODevice::ReadOnly);
 
         TlvMessage message = TlvMessage::marshall(stream);
+
+        qDebug() << buffer.toHex();
+        qDebug() << message;
+
+    }
+
+    {
+        qDebug() << "Test message unmarshall ----------------------------------------------------";
+        TlvTuple address = TlvTuple(TlvTuple::TYPE_ADDRESS, QString("ABCD").toLatin1().data());
+        TlvTuple* value = new TlvTuple(TlvTuple::TYPE_STRING, QString("Test").toLatin1().data());
+
+        TlvMessage message(address);
+        message.setValue(value);
+
+        QByteArray buffer;
+        QDataStream stream(&buffer, QIODevice::WriteOnly);
+
+        message.unmarshall(stream);
 
         qDebug() << buffer.toHex();
         qDebug() << message;

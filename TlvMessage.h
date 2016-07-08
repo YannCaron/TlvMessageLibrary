@@ -22,13 +22,23 @@ public:
     TlvMessage(const TlvMessage& other);
     virtual ~TlvMessage();
 
-    // static
+    // method
+    void unmarshall(QDataStream& stream) const
+    {
+        stream << SOH;
+        stream << 4;
+        stream << STX;
+        address.unmarshall(stream);
+        if (hasValue()) value->unmarshall(stream);
+        stream << ETX;
+        stream << EOT;
+    }
+
     static bool check(QDataStream& stream, quint8 expected);
     static TlvMessage marshall(QDataStream& stream);
 
     // property
     void setValue(const TlvTuple* value);
-
     bool hasValue() const;
 
     // operator
