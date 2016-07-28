@@ -3,6 +3,7 @@
 
 #include <QtCore/QByteArray>
 #include <QtCore/QDataStream>
+#include <QtCore/QList>
 
 //#include "Global.h"
 #include "TlvTuple.h"
@@ -18,53 +19,41 @@ public:
 	static const quint8 EOT = 0x04;
 
 	// constructor
-	TlvMessage(TlvTuple);
+	TlvMessage();
 	TlvMessage(const TlvMessage&);
 	virtual ~TlvMessage();
 
 	// method
+	TlvMessage* append(TlvTuple* tuple) {
+		tuples.append(tuple);
+		return this;
+	}
+
 	void unmarshall(QDataStream&) const;
 
+	// static
 	static int nextMessageEnd(QByteArray& buffer);
 	static TlvMessage marshall(QDataStream& stream);
 
 	// property
-	void setValue(const TlvTuple*);
-	bool hasValue() const;
-	int getAddressSize() const { return address.size(); };
-	int getType() const { return address.getType(); };
-	const char* getAddress() const { return address.data(); }
-	int getStatus() const { return address.getInt(); }
-	int getValueSize() const
-	{
-		if (value != NULL) return value->size();
-		return 0;
-	}
-	const char* getValue() const
-	{
-		if (value != NULL) return value->data();
-		return NULL;
-	}
-	int size() const
-	{
-		return ENCAP_SIZE + getAddressSize() + getValueSize();
-	}
+	int size() const;
 
 	// operator
 	friend QDebug operator<<(QDebug dbg, const TlvMessage& info)
 	{
 		dbg << "TlvMessage [";
 
-		dbg << info.address;
-		if (info.hasValue()) dbg << ", " << *info.value;
+		for (int i = 0; i < info.tuples.size(); i++) {
+			if (i > 0) dbg << ", ";
+			dbg << *(info.tuples.at(i));
+		}
 
 		dbg << "]";
 		return dbg;
 	}
 
 private:
-	TlvTuple address;
-	const TlvTuple* value;
+	QList<TlvTuple*> tuples;
 
 };
 

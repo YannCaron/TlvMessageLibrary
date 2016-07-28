@@ -20,8 +20,14 @@ public:
 		static const quint8 TYPE_STRING = 0x14;
 
 		// constructor
+//		TlvTuple(const TlvTuple&); // copy
+
 		TlvTuple(const quint8, const QByteArray&);
-		TlvTuple(const TlvTuple&);
+		TlvTuple(const quint8, bool);
+		TlvTuple(bool);
+		TlvTuple(const quint8, const QString&);
+		TlvTuple(const QString&);
+
 		virtual ~TlvTuple(void);
 
 		// accessor

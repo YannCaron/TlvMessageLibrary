@@ -1,21 +1,24 @@
 #include "TlvMessage.h"
 
-TlvMessage::TlvMessage(TlvTuple address) : address(address), value(NULL)
+TlvMessage::TlvMessage()
 {
-
 }
 
-TlvMessage::TlvMessage(const TlvMessage &other) : address(other.address)
+TlvMessage::TlvMessage(const TlvMessage &other) : tuples()
 {
-	if (other.value != NULL) this->value = new TlvTuple(*other.value);
+	// deep copy
+	for (int i = 0; i<other.tuples.size(); i++) {
+		tuples.append(new TlvTuple(other.tuples.at(i)));
+
+		// TODO : deep copy does not works properly
+		qDebug() << "COPY " << *tuples.at(i);
+	}
 }
 
 TlvMessage::~TlvMessage()
 {
-	if (this->value && this->value != NULL) {
-		this->value = NULL;
-		delete this->value;
-	}
+	qDeleteAll(tuples);
+	tuples.clear();
 }
 
 void TlvMessage::unmarshall(QDataStream &stream) const
@@ -23,8 +26,11 @@ void TlvMessage::unmarshall(QDataStream &stream) const
 	stream << SOH;
 	stream << this->size();
 	stream << STX;
-	address.unmarshall(stream);
-	if (hasValue()) value->unmarshall(stream);
+
+	for (int i = 0; i < tuples.size(); i++) {
+		tuples.at(i)->unmarshall(stream);
+	}
+
 	stream << ETX;
 	stream << EOT;
 }
@@ -45,6 +51,8 @@ int TlvMessage::nextMessageEnd(QByteArray& buffer)
 
 TlvMessage TlvMessage::marshall(QDataStream &stream) {
 
+	TlvMessage message;
+
 	TlvTuple::checkSize(stream, ENCAP_SIZE);
 
 	// check header
@@ -56,17 +64,10 @@ TlvMessage TlvMessage::marshall(QDataStream &stream) {
 
 	TlvTuple::check(stream, STX);
 
-	// extract address
-	TlvTuple address = TlvTuple::marshall(stream);
-	TlvMessage message(address);
-
-	// extract value
-	if (address.getType() == TlvTuple::TYPE_STATUS) {
-	} else if (address.getType() == TlvTuple::TYPE_ACK) {
-	} else if (address.getType() == TlvTuple::TYPE_ADDRESS) {
-		TlvTuple value = TlvTuple::marshall(stream);
-		message.setValue(new TlvTuple(value));
-	} else throw "Invalid message tuple type!";
+	// extract values
+	while (stream.device()->bytesAvailable() > 2) {
+		message.append(new TlvTuple(TlvTuple::marshall(stream)));
+	}
 
 	// check footer
 	TlvTuple::check(stream, ETX);
@@ -75,12 +76,12 @@ TlvMessage TlvMessage::marshall(QDataStream &stream) {
 	return message;
 }
 
-
-void TlvMessage::setValue(const TlvTuple *value)
+int TlvMessage::size() const
 {
-	this->value = value;
-}
+	int s = 0;
+	for (int i = 0; i < tuples.size(); i++) {
+		s += tuples.at(i)->size();
+	}
 
-bool TlvMessage::hasValue() const {
-	return this->value != NULL;
+	return ENCAP_SIZE + s;
 }

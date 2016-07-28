@@ -1,11 +1,24 @@
 #include "TlvTuple.h"
 
-TlvTuple::TlvTuple(const quint8 type, const QByteArray& value) : type(type), value(value)
-{
+QByteArray toByteArray(bool value) {
+	QByteArray byteArray;
+	QDataStream stream(&byteArray, QIODevice::WriteOnly);
+
+	stream << value;
+
+	return byteArray;
 }
 
-TlvTuple::TlvTuple(const TlvTuple &other) : type(other.type), value(other.value) {
-}
+//TlvTuple::TlvTuple(const TlvTuple& other) : type(other.type), value(other.value) {}
+
+TlvTuple::TlvTuple(const quint8 type, const QByteArray& value) : type(type), value(value) {}
+
+TlvTuple::TlvTuple(const quint8 type, bool value) : type(type), value(toByteArray(value == true ? 0x01 : 0x00)) {}
+TlvTuple::TlvTuple(bool value) : type(TlvTuple::TYPE_BOOL), value(toByteArray(value == true ? 0x01 : 0x00)) {}
+
+
+TlvTuple::TlvTuple(const quint8 type, const QString& value) : type(type), value(value.toLatin1().data()) {}
+TlvTuple::TlvTuple(const QString& value) : type(TlvTuple::TYPE_STRING), value(value.toLatin1().data()) {}
 
 TlvTuple::~TlvTuple(void)
 {
