@@ -56,9 +56,9 @@ int TlvMessage::nextMessageEnd(QByteArray& buffer)
 	return size;
 }
 
-TlvMessage TlvMessage::marshall(QDataStream &stream) {
+TlvMessage* TlvMessage::marshall(QDataStream &stream) {
 
-	TlvMessage message;
+    TlvMessage* message = new TlvMessage();
 
 	TlvTuple::checkSize(stream, ENCAP_SIZE);
 
@@ -73,7 +73,7 @@ TlvMessage TlvMessage::marshall(QDataStream &stream) {
 
 	// extract values
 	while (stream.device()->bytesAvailable() > 2) {
-		message.append(new TlvTuple(TlvTuple::marshall(stream)));
+        message->append(TlvTuple::marshall(stream));
 	}
 
 	// check footer

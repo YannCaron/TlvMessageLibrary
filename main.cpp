@@ -4,13 +4,16 @@
 #include "TlvMessage.h"
 #include "TlvTuple.h"
 
+#include "stdio.h"
+#include <iostream>
+
 int main(int argc, char *argv[])
 {
 	QCoreApplication a(argc, argv);
 
 	{
 		qDebug() << "Test unmarshall -----------------------------------------------------------";
-		TlvTuple tuple = TlvTuple(QString("Hi by my tlv friend !"));
+        TlvTuple tuple = TlvTuple(QString("Hi by my tlv friend !"));
 
 		QByteArray buffer;
 		QDataStream stream(&buffer, QIODevice::WriteOnly);
@@ -28,7 +31,7 @@ int main(int argc, char *argv[])
 		buffer.append(data, 9);
 		QDataStream stream(&buffer, QIODevice::ReadOnly);
 
-		TlvTuple tuple = TlvTuple::marshall(stream);
+        TlvTuple tuple = *TlvTuple::marshall(stream);
 
 		qDebug() << buffer.toHex();
 		qDebug() << tuple;
@@ -41,7 +44,7 @@ int main(int argc, char *argv[])
 		buffer.append(data, 6);
 		QDataStream stream(&buffer, QIODevice::ReadOnly);
 
-		TlvTuple tuple = TlvTuple::marshall(stream);
+        TlvTuple tuple = *TlvTuple::marshall(stream);
 
 		qDebug() << buffer.toHex();
 		qDebug() << tuple;
@@ -55,10 +58,10 @@ int main(int argc, char *argv[])
 		buffer.append(data, 9);
 		QDataStream stream(&buffer, QIODevice::ReadOnly);
 
-		TlvTuple tuple = TlvTuple::marshall(stream);
+        TlvTuple tuple = *TlvTuple::marshall(stream);
 
 		qDebug() << buffer.toHex();
-		qDebug() << tuple;
+        qDebug() << tuple;
 
 	}
 
@@ -87,15 +90,13 @@ int main(int argc, char *argv[])
 		buffer.append(data, sizeof(data) / sizeof(char));
 		QDataStream stream(&buffer, QIODevice::ReadOnly);
 
-		TlvMessage message = TlvMessage::marshall(stream);
+        TlvMessage message = *TlvMessage::marshall(stream);
 
 		qDebug() << buffer.toHex();
         qDebug() << *message.at(0);
         qDebug() << *message.at(1);
         qDebug() << "Contains message" << TlvMessage::nextMessageEnd(buffer);
-
-	}
+    }
 
     return 0;
-    //return a.exec();
 }

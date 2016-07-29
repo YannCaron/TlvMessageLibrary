@@ -24,14 +24,14 @@ public:
     virtual ~TlvMessage();
 
     // method
-    TlvMessage* append(TlvTuple* tuple);
+    TlvMessage* append(TlvTuple*);
     const TlvTuple* at(int);
 
     void unmarshall(QDataStream&) const;
 
     // static
-    static int nextMessageEnd(QByteArray& buffer);
-    static TlvMessage marshall(QDataStream& stream);
+    static int nextMessageEnd(QByteArray&);
+    static TlvMessage* marshall(QDataStream&);
 
     // property
     int size() const;

@@ -44,7 +44,7 @@ public:
     static void check(QDataStream& stream, quint8 expected);
 
     void unmarshall(QDataStream&) const;
-    static TlvTuple marshall(QDataStream&);
+    static TlvTuple* marshall(QDataStream&);
 
     // operator
     friend QDebug operator<<(QDebug dbg, const TlvTuple& info)

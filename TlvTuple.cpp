@@ -16,7 +16,6 @@ TlvTuple::TlvTuple(const quint8 type, const QByteArray& value) : type(type), val
 TlvTuple::TlvTuple(const quint8 type, bool value) : type(type), value(toByteArray(value == true ? 0x01 : 0x00)) {}
 TlvTuple::TlvTuple(bool value) : type(TlvTuple::TYPE_BOOL), value(toByteArray(value == true ? 0x01 : 0x00)) {}
 
-
 TlvTuple::TlvTuple(const quint8 type, const QString& value) : type(type), value(value.toLatin1().data()) {}
 TlvTuple::TlvTuple(const QString& value) : type(TlvTuple::TYPE_STRING), value(value.toLatin1().data()) {}
 
@@ -77,7 +76,7 @@ void TlvTuple::unmarshall(QDataStream& stream) const
     stream << this->value;
 }
 
-TlvTuple TlvTuple::marshall(QDataStream& stream) {
+TlvTuple* TlvTuple::marshall(QDataStream& stream) {
 
     checkSize(stream, HEADER_SIZE);
 
@@ -98,5 +97,5 @@ TlvTuple TlvTuple::marshall(QDataStream& stream) {
     buffer.append(temp, size);
     delete [] temp;
 
-    return TlvTuple(type, buffer);
+    return new TlvTuple(type, buffer);
 }
