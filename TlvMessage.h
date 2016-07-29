@@ -11,49 +11,48 @@
 class TlvMessage
 {
 public:
-	static const int ENCAP_SIZE = 4 + sizeof(int);
+    static const int ENCAP_SIZE = 4 + sizeof(int);
 
-	static const quint8 SOH = 0x01;
-	static const quint8 STX = 0x02;
-	static const quint8 ETX = 0x03;
-	static const quint8 EOT = 0x04;
+    static const quint8 SOH = 0x01;
+    static const quint8 STX = 0x02;
+    static const quint8 ETX = 0x03;
+    static const quint8 EOT = 0x04;
 
-	// constructor
-	TlvMessage();
-	TlvMessage(const TlvMessage&);
-	virtual ~TlvMessage();
+    // constructor
+    TlvMessage();
+    TlvMessage(const TlvMessage&);
+    virtual ~TlvMessage();
 
-	// method
-	TlvMessage* append(TlvTuple* tuple) {
-		tuples.append(tuple);
-		return this;
-	}
+    // method
+    TlvMessage* append(TlvTuple* tuple);
+    const TlvTuple* at(int);
 
-	void unmarshall(QDataStream&) const;
+    void unmarshall(QDataStream&) const;
 
-	// static
-	static int nextMessageEnd(QByteArray& buffer);
-	static TlvMessage marshall(QDataStream& stream);
+    // static
+    static int nextMessageEnd(QByteArray& buffer);
+    static TlvMessage marshall(QDataStream& stream);
 
-	// property
-	int size() const;
+    // property
+    int size() const;
+    int countTuples() const;
 
-	// operator
-	friend QDebug operator<<(QDebug dbg, const TlvMessage& info)
-	{
-		dbg << "TlvMessage [";
+    // operator
+    friend QDebug operator<<(QDebug dbg, const TlvMessage& info)
+    {
+        dbg << "TlvMessage [";
 
-		for (int i = 0; i < info.tuples.size(); i++) {
-			if (i > 0) dbg << ", ";
-			dbg << *(info.tuples.at(i));
-		}
+        for (int i = 0; i < info.tuples.size(); i++) {
+            if (i > 0) dbg << ", ";
+            dbg << *(info.tuples.at(i));
+        }
 
-		dbg << "]";
-		return dbg;
-	}
+        dbg << "]";
+        return dbg;
+    }
 
 private:
-	QList<TlvTuple*> tuples;
+    QList<TlvTuple*> tuples;
 
 };
 

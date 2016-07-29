@@ -90,10 +90,12 @@ int main(int argc, char *argv[])
 		TlvMessage message = TlvMessage::marshall(stream);
 
 		qDebug() << buffer.toHex();
-		qDebug() << message;
-		qDebug() << "Contains message" << TlvMessage::nextMessageEnd(buffer);
+        qDebug() << *message.at(0);
+        qDebug() << *message.at(1);
+        qDebug() << "Contains message" << TlvMessage::nextMessageEnd(buffer);
 
 	}
 
-	return a.exec();
+    return 0;
+    //return a.exec();
 }

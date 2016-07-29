@@ -9,9 +9,6 @@ TlvMessage::TlvMessage(const TlvMessage &other) : tuples()
 	// deep copy
 	for (int i = 0; i<other.tuples.size(); i++) {
 		tuples.append(new TlvTuple(other.tuples.at(i)));
-
-		// TODO : deep copy does not works properly
-		qDebug() << "COPY " << *tuples.at(i);
 	}
 }
 
@@ -21,11 +18,21 @@ TlvMessage::~TlvMessage()
 	tuples.clear();
 }
 
+TlvMessage *TlvMessage::append(TlvTuple *tuple) {
+    tuples.append(tuple);
+    return this;
+}
+
+const TlvTuple *TlvMessage::at(int i)
+{
+    return tuples.at(i);
+}
+
 void TlvMessage::unmarshall(QDataStream &stream) const
 {
-	stream << SOH;
-	stream << this->size();
-	stream << STX;
+    stream << SOH;
+    stream << this->size();
+    stream << STX;
 
 	for (int i = 0; i < tuples.size(); i++) {
 		tuples.at(i)->unmarshall(stream);
@@ -83,5 +90,10 @@ int TlvMessage::size() const
 		s += tuples.at(i)->size();
 	}
 
-	return ENCAP_SIZE + s;
+    return ENCAP_SIZE + s;
+}
+
+int TlvMessage::countTuples() const
+{
+    return tuples.count();
 }
