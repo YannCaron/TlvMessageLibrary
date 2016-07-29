@@ -19,20 +19,20 @@ TlvMessage::~TlvMessage()
 }
 
 TlvMessage *TlvMessage::append(TlvTuple *tuple) {
-    tuples.append(tuple);
-    return this;
+	tuples.append(tuple);
+	return this;
 }
 
 const TlvTuple *TlvMessage::at(int i)
 {
-    return tuples.at(i);
+	return tuples.at(i);
 }
 
 void TlvMessage::unmarshall(QDataStream &stream) const
 {
-    stream << SOH;
-    stream << this->size();
-    stream << STX;
+	stream << SOH;
+	stream << this->size();
+	stream << STX;
 
 	for (int i = 0; i < tuples.size(); i++) {
 		tuples.at(i)->unmarshall(stream);
@@ -58,7 +58,7 @@ int TlvMessage::nextMessageEnd(QByteArray& buffer)
 
 TlvMessage* TlvMessage::marshall(QDataStream &stream) {
 
-    TlvMessage* message = new TlvMessage();
+	TlvMessage* message = new TlvMessage();
 
 	TlvTuple::checkSize(stream, ENCAP_SIZE);
 
@@ -73,7 +73,7 @@ TlvMessage* TlvMessage::marshall(QDataStream &stream) {
 
 	// extract values
 	while (stream.device()->bytesAvailable() > 2) {
-        message->append(TlvTuple::marshall(stream));
+		message->append(TlvTuple::marshall(stream));
 	}
 
 	// check footer
@@ -90,10 +90,10 @@ int TlvMessage::size() const
 		s += tuples.at(i)->size();
 	}
 
-    return ENCAP_SIZE + s;
+	return ENCAP_SIZE + s;
 }
 
 int TlvMessage::countTuples() const
 {
-    return tuples.count();
+	return tuples.count();
 }
